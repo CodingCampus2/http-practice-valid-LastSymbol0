@@ -95,21 +95,25 @@ namespace HttpPractice1
 
         private async Task SendRequest(HttpRequestMessage message, bool showOnlyReturnCode)
         {
-            var result = await client.SendAsync(message);
+            try {
+                var result = await client.SendAsync(message);
 
-            ConsoleUtils.WriteLine("Server responce:", ConsoleUtils.MessageType.WEAK);
-            if (result.IsSuccessStatusCode)
-            {
-                if (showOnlyReturnCode)
-                    ConsoleUtils.WriteLine($"Return code: {result.StatusCode}", ConsoleUtils.MessageType.SUCCESS);
+                ConsoleUtils.WriteLine("Server responce:", ConsoleUtils.MessageType.WEAK);
+                if (result.IsSuccessStatusCode)
+                {
+                    if (showOnlyReturnCode)
+                        ConsoleUtils.WriteLine($"Return code: {result.StatusCode}", ConsoleUtils.MessageType.SUCCESS);
+                    else
+                        ConsoleUtils.WriteLine(await result.Content.ReadAsStringAsync(), ConsoleUtils.MessageType.SUCCESS);
+                }
                 else
-                    ConsoleUtils.WriteLine(await result.Content.ReadAsStringAsync(), ConsoleUtils.MessageType.SUCCESS);
-            }
-            else
-            {
-                ConsoleUtils.WriteLine(
-                    $"Return code: {result.StatusCode}\nMessage: {await result.Content.ReadAsStringAsync()}",
-                    ConsoleUtils.MessageType.FAIL);
+                {
+                    ConsoleUtils.WriteLine(
+                        $"Return code: {result.StatusCode}\nMessage: {await result.Content.ReadAsStringAsync()}",
+                        ConsoleUtils.MessageType.FAIL);
+                }
+            } catch (HttpRequestException e) {
+                ConsoleUtils.WriteLine(e.Message, ConsoleUtils.MessageType.FAIL);
             }
         }
 
@@ -134,6 +138,7 @@ namespace HttpPractice1
             ConsoleUtils.WriteLine(deleteUsage, ConsoleUtils.MessageType.HINT);
             ConsoleUtils.WriteLine("For exit enter 'q'", ConsoleUtils.MessageType.HINT);
             Console.WriteLine();
+
 
             while (true)
             {
